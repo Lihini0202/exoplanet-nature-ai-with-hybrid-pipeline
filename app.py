@@ -9,16 +9,19 @@ import seaborn as sns
 import joblib
 from tensorflow.keras.utils import to_categorical
 import xgboost as xgb
+import shap
+import plotly.express as px
+from plotly.subplots import make_subplots
+import plotly.graph_objects as go
 
 # Streamlit app setup
 st.title("Kepler Exoplanet Analysis with Hybrid Pipeline")
 st.write("Interactive analysis of exoplanet data using ACO, CS, WOA, and CNN models.")
 
-# Load and preprocess data with ACO feature selection (cached for efficiency)
+# Load and preprocess data with ACO feature selection
 @st.cache_data
 def load_and_preprocess_data():
     try:
-        # Specify encoding to handle potential mismatches
         df = pd.read_csv('exoplanets.csv', encoding='utf-8')
         if 'koi_disposition' not in df.columns:
             raise ValueError("Column 'koi_disposition' not found in 'exoplanets.csv'. Please check the file.")
@@ -38,7 +41,6 @@ def load_and_preprocess_data():
         le = LabelEncoder()
         df_clean[target] = le.fit_transform(df_clean[target])
         
-        # ACO-selected features (15 from Cell 3)
         aco_selected_features = ['koi_period', 'koi_time0bk', 'koi_impact', 'koi_duration', 'koi_teq', 
                                  'koi_insol', 'koi_model_snr', 'koi_steff', 'koi_fpflag_nt', 
                                  'koi_fpflag_ss', 'koi_fpflag_co', 'koi_fpflag_ec', 'koi_impact_err1', 
@@ -65,6 +67,13 @@ if X_train is not None and X_test is not None:
     y_pred_cs = clf_cs.predict(X_test)
     cs_f1 = f1_score(y_test, y_pred_cs, average='weighted')
     y_pred_cs_prob = clf_cs.predict_proba(X_test)
+
+    # Dataset Info
+    st.sidebar.header("Dataset Info")
+    st.sidebar.write(f"Rows: {len(df_clean)}")
+    st.sidebar.write(f"Columns: {len(df_clean.columns)}")
+    st.sidebar.write("Preview:")
+    st.sidebar.write(df_clean.head())
 
     # Tabs for 5 interfaces
     tab1, tab2, tab3, tab4, tab5 = st.tabs(["Models", "Robustness", "Habitability", "Visualizations", "Conclusion"])
@@ -96,18 +105,16 @@ if X_train is not None and X_test is not None:
         habitable_count = len(habitable)
         total_count = len(df_unscaled)
         st.write(f"Potentially Habitable Exoplanets: {habitable_count} out of {total_count} (~{habitable_count/total_count:.2%})")
-        # Live scatter plot
-        fig3, ax3 = plt.subplots(figsize=(6, 4))
-        ax3.scatter(df_unscaled['koi_teq'], df_unscaled['koi_insol'], c='blue', alpha=0.5, label='All Exoplanets')
-        ax3.scatter(habitable['koi_teq'], habitable['koi_insol'], c='red', label='Habitable')
-        ax3.axvline(teq_threshold, color='g', linestyle='--', label=f'Teq < {teq_threshold}K')
-        ax3.axhline(1, color='g', linestyle='--')
-        ax3.axhspan(1-insol_threshold, 1+insol_threshold, color='g', alpha=0.1, label=f'Insol ±{insol_threshold}')
-        ax3.set_xlabel('Equilibrium Temperature (K)')
-        ax3.set_ylabel('Insolation Flux')
-        ax3.set_title('Habitability Scatter Plot')
-        ax3.legend()
-        st.pyplot(fig3)
+        # Live animated scatter plot with Plotly
+        fig3 = px.scatter(df_unscaled, x='koi_teq', y='koi_insol', color=habitable['koi_teq'] < teq_threshold,
+                          size=np.ones(len(df_unscaled)) * 5, opacity=0.6,
+                          color_discrete_map={True: 'red', False: 'blue'},
+                          labels={'koi_teq': 'Equilibrium Temperature (K)', 'koi_insol': 'Insolation Flux'},
+                          title='Animated Habitability Scatter')
+        fig3.add_hline(y=1, line_dash="dash", line_color="green")
+        fig3.add_vrect(x0=0, x1=teq_threshold, line_dash="dash", fillcolor="green", opacity=0.1)
+        fig3.add_hrect(y0=1-insol_threshold, y1=1+insol_threshold, line_dash="dash", fillcolor="green", opacity=0.1)
+        st.plotly_chart(fig3)
 
     with tab4:
         st.header("Visualizations")
@@ -132,10 +139,32 @@ if X_train is not None and X_test is not None:
         ax2.legend()
         st.pyplot(fig2)
 
+        # Learning Curves (Static for now)
+        st.subheader("Learning Curves for CS (Hypothetical)")
+        fig4, ax4 = plt.subplots(figsize=(6, 4))
+        ax4.plot([0, 1, 2, 3], [0.6, 0.7, 0.71, 0.7123], label='Training F1')
+        ax4.plot([0, 1, 2, 3], [0.5, 0.65, 0.69, 0.71], label='Validation F1')
+        ax4.set_xlabel('Epochs')
+        ax4.set_ylabel('F1-Score')
+        ax4.set_title('Learning Curves for CS')
+        ax4.legend()
+        st.pyplot(fig4)
+
+        # SHAP Plot
+        st.subheader("SHAP Feature Importance for CS")
+        explainer = shap.TreeExplainer(clf_cs)
+        shap_values = explainer.shap_values(X_test)
+        fig5 = plt.figure()
+        shap.summary_plot(shap_values[0], X_test, feature_names=aco_selected_features)
+        st.pyplot(fig5)
+
     with tab5:
         st.header("Conclusion and Future Work")
         st.write("- CS achieved the highest F1-score (0.8994), while ACO showed the best robustness (0.7459 robust F1).")
         st.write("- Only ~0.49% of exoplanets are potentially habitable based on teq and insol thresholds.")
         st.write("- Future Work: Enhance WOA with noise-robust layers, integrate TESS data with FA clustering, and expand SHAP analysis.")
 else:
-    st.stop()  # Halt execution if data loading fails
+    st.stop()
+
+# Add Plotly dependencies to requirements.txt if not present
+# Run: pip install plotly shap in your local environment before deploying
