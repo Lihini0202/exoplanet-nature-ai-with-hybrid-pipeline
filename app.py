@@ -48,12 +48,12 @@ def load_and_preprocess_data():
         scaler = StandardScaler()
         X_scaled = scaler.fit_transform(X)
         X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42, stratify=y)
-        return X_train, X_test, y_train, y_test, le.classes_, df_clean, aco_selected_features
+        return X_train, X_test, y_train, y_test, le.classes_, df_clean, aco_selected_features, target
     except Exception as e:
         st.error(f"Error loading data: {str(e)}. Please ensure 'exoplanets.csv' is uploaded correctly and is not empty or corrupted.")
-        return None, None, None, None, None, None, None
+        return None, None, None, None, None, None, None, None
 
-X_train, X_test, y_train, y_test, classes, df_clean, aco_selected_features = load_and_preprocess_data()
+X_train, X_test, y_train, y_test, classes, df_clean, aco_selected_features, target = load_and_preprocess_data()
 
 if X_train is not None and X_test is not None:
     # Load pre-trained CS model
