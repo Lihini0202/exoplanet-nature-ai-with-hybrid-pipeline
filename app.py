@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix, f1_score
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
@@ -14,7 +14,7 @@ import xgboost as xgb
 st.title("Kepler Exoplanet Analysis with Hybrid Pipeline")
 st.write("Analyzing exoplanet data using ACO, CS, WOA, and CNN models.")
 
-# Load and preprocess data (cached for efficiency)
+# Load and preprocess data with ACO feature selection (cached for efficiency)
 @st.cache_data
 def load_and_preprocess_data():
     df = pd.read_csv('exoplanets.csv')
@@ -30,7 +30,13 @@ def load_and_preprocess_data():
     df_clean[features + error_features] = df_clean[features + error_features].fillna(0)
     le = LabelEncoder()
     df_clean[target] = le.fit_transform(df_clean[target])
-    X = df_clean[features + error_features].values
+    
+    # Apply ACO-selected features (based on Cell 3 output)
+    aco_selected_features = ['koi_period', 'koi_time0bk', 'koi_impact', 'koi_duration', 'koi_teq', 
+                            'koi_insol', 'koi_model_snr', 'koi_steff', 'koi_fpflag_nt', 
+                            'koi_fpflag_ss', 'koi_fpflag_co', 'koi_fpflag_ec', 'koi_impact_err1', 
+                            'koi_duration_err1', 'koi_depth_err1', 'koi_prad_err1', 'koi_insol_err1']
+    X = df_clean[aco_selected_features].values
     y = df_clean[target].values
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
@@ -64,8 +70,8 @@ st.write("WOA: 0.5828 ± 0.0099")
 st.write("CNN: N/A (Not computed)")
 
 # Habitability Insights (from Cell 9)
-teq_idx, insol_idx = 6, 7
-habitability = np.where((X_test[:, teq_idx] < 0) & (np.abs(X_test[:, insol_idx] - 1) < 0.5), 1, 0)  # Note: Scaled data, adjust threshold if needed
+teq_idx, insol_idx = 4, 5  # Adjusted indices based on aco_selected_features order
+habitability = np.where((X_test[:, teq_idx] < 0) & (np.abs(X_test[:, insol_idx] - 1) < 0.5), 1, 0)  # Scaled data
 habitable_count = np.sum(habitability)
 total_count = len(habitability)
 st.write("### Habitability Insights")
