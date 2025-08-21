@@ -2,9 +2,10 @@ streamlit
 pandas
 numpy
 scikit-learn
+xgboost
+tensorflow
+deap
+shap
 matplotlib
 seaborn
-tensorflow
-xgboost
-shap
-plotly
+joblib
