@@ -31,11 +31,11 @@ def load_and_preprocess_data():
     le = LabelEncoder()
     df_clean[target] = le.fit_transform(df_clean[target])
     
-    # Apply ACO-selected features (based on Cell 3 output)
+    # Adjust to match the 15 features the model was trained on (verify with Cell 4)
     aco_selected_features = ['koi_period', 'koi_time0bk', 'koi_impact', 'koi_duration', 'koi_teq', 
                             'koi_insol', 'koi_model_snr', 'koi_steff', 'koi_fpflag_nt', 
                             'koi_fpflag_ss', 'koi_fpflag_co', 'koi_fpflag_ec', 'koi_impact_err1', 
-                            'koi_duration_err1', 'koi_depth_err1', 'koi_prad_err1', 'koi_insol_err1']
+                            'koi_duration_err1', 'koi_depth_err1']  # Trimmed to 15
     X = df_clean[aco_selected_features].values
     y = df_clean[target].values
     scaler = StandardScaler()
@@ -70,7 +70,7 @@ st.write("WOA: 0.5828 ± 0.0099")
 st.write("CNN: N/A (Not computed)")
 
 # Habitability Insights (from Cell 9)
-teq_idx, insol_idx = 4, 5  # Adjusted indices based on aco_selected_features order
+teq_idx, insol_idx = 4, 5  # Adjusted indices based on new feature order
 habitability = np.where((X_test[:, teq_idx] < 0) & (np.abs(X_test[:, insol_idx] - 1) < 0.5), 1, 0)  # Scaled data
 habitable_count = np.sum(habitability)
 total_count = len(habitability)
