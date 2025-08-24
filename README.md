@@ -38,5 +38,5 @@ To run this app locally, follow these steps:
 
 1. **Clone the Repository**:
    ```bash
-   git clone https://github.com/your-username/exoplanet-nature-ai-with-hybrid-pipeline.git
+   git clone https://github.com/Lihini0202/exoplanet-nature-ai-with-hybrid-pipeline.git
    cd exoplanet-nature-ai-with-hybrid-pipeline
