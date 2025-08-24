@@ -62,7 +62,7 @@ Libraries: streamlit, pandas, numpy, scikit-learn, xgboost, matplotlib, seaborn,
 Files: exoplanets.csv, cs_model.joblib, requirements.txt, app.py.
 
 Update requirements.txt with:
-textstreamlit==1.30.0
+streamlit==1.30.0
 pandas==2.2.2
 numpy==1.26.4
 scikit-learn==1.5.0
