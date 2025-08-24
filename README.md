@@ -56,12 +56,15 @@ bashstreamlit run app.py
 Visit http://localhost:8501 to explore the universe!
 
 
-🛡️ Requirements
+## 🛡️ Requirements
 
-Libraries: streamlit, pandas, numpy, scikit-learn, xgboost, matplotlib, seaborn, joblib, tensorflow, shap, plotly.
-Files: exoplanets.csv, cs_model.joblib, requirements.txt, app.py.
+**Libraries:**  
+`streamlit`, `pandas`, `numpy`, `scikit-learn`, `xgboost`, `matplotlib`, `seaborn`, `joblib`, `tensorflow`, `shap`, `plotly`
 
-Update requirements.txt with:
+**Files:**  
+`exoplanets.csv`, `cs_model.joblib`, `requirements.txt`, `app.py`
+
+**Update `requirements.txt` with:**  
 streamlit==1.30.0
 pandas==2.2.2
 numpy==1.26.4
@@ -74,26 +77,28 @@ tensorflow==2.17.0
 shap==0.44.1
 plotly==5.18.0
 
-🎨 Exploring the App
-Tab Adventures
 
-Models: Check F1-scores for all models, with CS updated live.
-Robustness: Compare robustness metrics (e.g., CS: 0.6981 ± 0.0035).
-Habitability: Watch a live scatter plot evolve with your slider tweaks.
-Visualizations: Marvel at confusion matrices, ROC curves, learning curves, and SHAP plots.
-Conclusion: Reflect on findings and future cosmic quests.
+---
 
-Interactive Galaxies
+## 🎨 Exploring the App: Tab Adventures
 
-Slide to adjust habitability thresholds and hit "Refresh Habitability Plot" for a new view.
-Hover over Plotly charts to zoom into the data cosmos.
+- **Models**: Check F1-scores for all models, with **CS updated live**.  
+- **Robustness**: Compare robustness metrics (e.g., CS: 0.6981 ± 0.0035).  
+- **Habitability**: Watch a **live scatter plot** evolve with your slider tweaks.  
+- **Visualizations**: Marvel at **confusion matrices, ROC curves, learning curves, and SHAP plots**.  
+- **Conclusion**: Reflect on findings and plan your **future cosmic quests**.  
 
+---
 
-🌠 Future Horizons
+## 🌌 Interactive Galaxies
 
-Beam in real-time TESS data.
-Animate learning curves with training history.
-Expand SHAP analysis across all models.
+- Slide to adjust **habitability thresholds** and click **"Refresh Habitability Plot"** for a new perspective.  
+- Hover over **Plotly charts** to zoom in and explore the data cosmos in detail.  
 
+---
 
+## 🌠 Future Horizons
 
+- Integrate **real-time TESS data**  
+- Animate **learning curves** with training history  
+- Expand **SHAP analysis** across all models
